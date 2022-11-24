@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('head.ejs') %>
+<style>
+    .ke-powered-by {
+        display: none;
+    }
+
+    .btn-file {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+    }
+</style>
+
+<body>
+    <%- include('nav.ejs') %>
+    <div class="container" style="padding-bottom: 100px;">
+        <div class="col-md-12">
+            <div class="row" style="border: 1px solid #ccc!important;">
+                <div class="col-md-12" style="background: #f1f1f1; padding: 12px;">
+                    <h4>Create New Resource</h2>
+                </div>
+                <div class="col-md-12" style="padding: 12px;">
+                    <form>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" placeholder="Title" class="form-control resource_title" />
+                        </div>
+                        <div class="form-group">
+                            <label>Banner Image</label><br>
+                            <img src="./img/default_banner.png" id="banner_img" height="100"
+                                style="border-radius: 5px;">
+                            <span class="btn btn-default btn-file">
+                                Browse <input type="file" name="input_banner_img" id="input_banner_img" />
+                            </span>
+                        </div>
+                        <div class="form-group">
+                            <label>Resource Type</label> <br />
+                            <select class="form-control resource_type_option" style="width: 250px;"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Industries</label> <br />
+                            <select class="industry_option" id="boot-multiselect-demo" multiple="multiple"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Short Description
+                                <span style="font-style: italic; font-size: 12px; color: #bb1c1c;">(Max 300
+                                    characters)</span>
+                            </label>
+                            <textarea class="form-control short_desc"
+                                placeholder="Please enter your description here (Max 300 characters)..." rows="3"
+                                maxlength="300"></textarea>
+                        </div>
+                        <button class="btn btn-primary create_resource">
+                            Create Resource
+                            <i class="fa fa-refresh fa-spin" aria-hidden="true" style="display: none;"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<%- include('default_scripts.ejs') %>
+
+<script type="text/javascript">
+    $.ajax({
+        url: '/api/resource_type',
+        method: 'GET',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: function (data) {
+            $('.resource_type_option').html(
+                data.response ?
+                    `<option value="">Select Resource Type</option>` +
+                    data.response.map(s => `<option value="${s.id}">${s.resource_type_name.toLowerCase()}</option>`).join('') : []);
+        }
+    });
+
+    $.ajax({
+        url: '/api/industry',
+        method: 'GET',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: function (data) {
+            $('.industry_option').html(
+                data.response ? data.response.map(s => `<option value="${s.id}">${s.industry_name.toLowerCase()}</option>`).join('') : []);
+            $(document).ready(function () {
+                $('#boot-multiselect-demo').multiselect({
+                    includeSelectAllOption: true,
+                    buttonWidth: 250,
+                    enableFiltering: true
+                });
+            });
+        }
+    });
+</script>
+<script>
+    document.getElementById("input_banner_img").addEventListener("change", readFile);
+    function readFile() {
+        if (this.files && this.files[0]) {
+            var FR = new FileReader();
+            FR.addEventListener("load", function (e) {
+                document.getElementById("banner_img").src = e.target.result;
+            });
+            FR.readAsDataURL(this.files[0]);
+        }
+    }
+
+    $('.create_resource').click(function (e) {
+        e.preventDefault();
+        const property = document.getElementById('input_banner_img').files[0];
+        if (!$('.resource_title').val()) {
+            $('.resource_title').focus();
+            $('.resource_title').css('border-color', 'red');
+            return false;
+        } else if (!$('.resource_type_option').val()) {
+            $('.resource_title').css('border-color', '');
+            $('.resource_type_option').focus();
+            $('.resource_type_option').css('border-color', 'red');
+            return false;
+        } else if (!$('.short_desc').val()) {
+            $('.resource_type_option').css('border-color', '');
+            $('.short_desc').focus();
+            $('.short_desc').css('border-color', 'red');
+            return false;
+        } else {
+            if (property) {
+                const imageName = property.name;
+                const imageExtension = imageName.split('.').pop().toLowerCase();
+                if (jQuery.inArray(imageExtension, ['gif', 'png', 'jpg', 'jpeg']) === -1) {
+                    alert('invalid image file');
+                    return false;
+                }
+            }
+            const data = {
+                title: $('.resource_title').val(),
+                short_desc: $('.short_desc').val(),
+                industry: $('#boot-multiselect-demo').val() ? $('#boot-multiselect-demo').val() : [],
+                resource_type_id: +$('.resource_type_option').val(),
+                banner_img: $('#banner_img').attr('src') !== './img/default_banner.png' ? $('#banner_img').attr('src') : null
+            }
+
+            $.ajax({
+                url: '/api/resource',
+                method: 'POST',
+                data: JSON.stringify(data),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                beforeSend: function () {
+                    $('.create_resource').css('pointer-events', 'none');
+                    $('.fa-refresh').css('display', '');
+                },
+                success: function (data) {
+                    $('.create_resource').css('pointer-events', '');
+                    $('.fa-refresh').css('display', 'none');
+                    localStorage.removeItem('DataTables_resourceList_/resource');
+                    window.location = 'resource';
+                }
+            });
+        }
+    })
+</script>
+
+</html>

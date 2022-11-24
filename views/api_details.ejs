@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('head.ejs') %>
+
+<body>
+    <%- include('nav.ejs') %>
+    <div class="container" style="padding-bottom: 100px;">
+        <div class="col-md-12">
+            <div class="row" style="border: 1px solid #ccc!important;">
+                <div class="col-md-12" style="background: #f1f1f1; padding: 12px;">
+                    <h4>API Details</h2>
+                </div>
+                <div class="col-md-12" style="padding: 12px;">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <th style="width: 400px;">Description</th>
+                            <th>API</th>
+                        </thead>
+                        <tbody class="show_api_info"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('default_scripts.ejs') %>
+    <script>
+        const baseUrl = window.location.protocol + '//' + window.location.hostname + '/';
+        const api_detail = [
+            {
+                name: 'Get all blogs list',
+                api: baseUrl + 'api/blog'
+            },
+            {
+                name: 'Get single blog by id',
+                api: baseUrl + 'api/blog/2'
+            },
+            {
+                name: 'Get all resources list',
+                api: baseUrl + 'api/resource'
+            },
+            {
+                name: 'Get single resource by id',
+                api: baseUrl + 'api/resource/2'
+            }
+        ];
+        $('.show_api_info').html(
+            api_detail.map(o => `<tr><td>${o.name}</td><td>${o.api}</td></tr>`)
+        )
+    </script>
+</body>
+
+</html>

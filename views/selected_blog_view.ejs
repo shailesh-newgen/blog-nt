@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>NT Blog</title>
+    <link rel="shortcut icon" href="../img/favicon.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../keditor/css/keditor.min.css">
+</head>
+
+<body>
+    <%- include('nav.ejs') %>
+    <div class="container" style="padding-bottom: 100px;">
+        <div class="col-md-12">
+            <h2 class="blog_title" style="background: #5cbbeb; color: #ffffff; border-radius: 2px; padding: 12px;"></h2>
+        </div>
+        <div class="col-md-12">
+            <span class="pull-right font-italic blog_created_at"></span>
+            <div class="col-md-12 text-center banner_img"></div>
+            <div class="col-md-12">
+                <div class="ke-wrapper-inner ke-wrapper-wysiwyg keditor-editable">
+                    <div class="col-md-12 blog_content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="../js/logout.js"></script>
+<script type='text/javascript'>
+    let res = {
+        data: <%- JSON.stringify(response) %>
+    };
+    $('.blog_title').html(res.data.title);
+    $('.banner_img').html(res.data.banner_img ? `<br /><img src="${res.data.banner_img}" style="border-radius: 5px; width: 200px"/> <hr />` : '');
+    $('.blog_content').html(JSON.parse(res.data.content));
+    $('.blog_created_at').html(res.data.created_at);
+</script>

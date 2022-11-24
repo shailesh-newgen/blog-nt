@@ -1,0 +1,43 @@
+body,
+html {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.bg-image {
+    background-image: url("./img/m1.jpg");
+    filter: blur(1px);
+    -webkit-filter: blur(1px);
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.bg-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.login_btn {
+    background: #5bb6e4;
+    color: #ffffff;
+}
+
+.login_btn:hover {
+    background: #80c8ec;
+    color: #ffffff;
+}
+
+.input-group-text {
+    background: #5bb6e4;
+    color: #ffffff;
+}
+
+.card-body {
+    padding: 30px;
+}

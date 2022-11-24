@@ -1,0 +1,1 @@
+CREATE TABLE resource_type ( id serial PRIMARY KEY, resource_type_name text, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);

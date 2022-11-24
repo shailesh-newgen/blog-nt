@@ -1,0 +1,66 @@
+<style>
+    .navbar {
+        border-radius: 0;
+    }
+
+    .navbar-default {
+        box-shadow: 0px -1px 9px 1px rgba(0, 0, 0, 0.25);
+    }
+
+    .navbar-default .navbar-brand {
+        margin-left: 90px !important;
+    }
+
+    .container {
+        margin-top: 100px;
+    }
+</style>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../blog">
+                <img src="../img/logo.png" alt="logo" style="width: 100px;">
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li><a class="nav-link create-blog" href="../blog">My Blogs</a></li>
+                <li><a class="nav-link create-blog" href="../resource">My Resources</a></li> 
+                <li><a class="nav-link create-blog" href="../create_blog">Create Blog</a></li>
+                <li><a class="nav-link create-blog" href="../create_resource">Create Resource</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right" id="loggedInLinkView">
+                <li>
+                    <a href="../api_details">
+                        <span class="glyphicon glyphicon-link"></span> &nbsp;
+                        API Details
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="loggedInLinkView">
+                        <span class="glyphicon glyphicon-user"></span> &nbsp;
+                        <span id="usernameDisplay"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="logout()">
+                        <span class="glyphicon glyphicon-log-out"></span> &nbsp;Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script>
+    const localStorageData = JSON.parse(localStorage.getItem('data'));
+    const loggedInLinkView = document.getElementById('loggedInLinkView');
+    const usernameDisplay = document.getElementById('usernameDisplay');
+    loggedInLinkView.style = `display: ${localStorageData ? '' : 'none'}`;
+    usernameDisplay.innerHTML = localStorageData ? localStorageData.username : '';
+</script>

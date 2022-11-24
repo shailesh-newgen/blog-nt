@@ -1,0 +1,10 @@
+{
+  "ip": "localhost",
+  "port": "4008",
+  "mysql": {
+    "host": "localhost",
+    "username": "root",
+    "database": "blog_nt",
+    "password": "root"
+  }
+}

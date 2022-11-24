@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('head.ejs') %>
+<style>
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0 !important;
+        margin-left: 0 !important;
+        border: 0 !important;
+
+    }
+
+    .ke-powered-by {
+        display: none;
+    }
+
+    .btn-file {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+    }
+</style>
+
+<body>
+    <%- include('nav.ejs') %>
+    <div class="container" style="padding-bottom: 100px;">
+        <div class="col-md-12">
+            <h3>Resources</h3>
+        </div>
+        <div class="col-md-12 editView" style="padding: 12px; display: none; border: 1px solid #ccc!important;">
+            <input type="text" class="resource_id" style="display: none;">
+            <div class="col-md-12" style="background: #f1f1f1; padding: 12px;">
+                <h4>Edit Resource
+                    <button class="btn btn-default btn-sm pull-right closeView"><i class="fa fa-close"></i></span>
+                        </h2>
+            </div>
+            <div class="col-md-12" style="padding: 12px;">
+                <form>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" placeholder="Title" class="form-control resource_title" />
+                    </div>
+                    <div class="form-group">
+                        <label>Banner Image</label><br />
+                        <img src="./img/default_banner.png" alt="banner_img_base64" id="banner_img_base64"
+                            style="width: 110px; border-radius: 5px;">
+                        <button class="btn btn-default reset_banner_img">
+                            Reload
+                        </button>
+                        <span class="btn btn-default btn-file">
+                            Browse <input type="file" name="input_banner_img" id="input_banner_img" />
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label>Resource Type</label> <br />
+                        <select class="form-control resource_type_option" style="width: 200px;"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Short Description
+                            <span style="font-style: italic; font-size: 12px; color: #bb1c1c;">(Max 300
+                                characters)</span>
+                        </label>
+                        <textarea class="form-control short_desc"
+                            placeholder="Please enter your description here (Max 300 characters)..." rows="3"
+                            maxlength="300"></textarea>
+                    </div>
+                    <button class="btn btn-primary update_resource">
+                        Update
+                        <i class="fa fa-refresh fa-spin" aria-hidden="true" style="display: none;"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-12 tableView" style="margin-bottom: 100px;">
+            <table id="resourceListTable" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th style="text-align: center;">Resource Type</th>
+                        <th style="text-align: center;">Industry</th>
+                        <th style="text-align: center;">Created Date</th>
+                        <th width="110">Options</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+        <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg" style="padding-top: 100px;">
+                <div class="modal-content">
+                    <input type="hidden" class="resource_id" />
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title resource_title" id="exampleModalLabel"></h3>
+                    </div>
+                    <div class="modal-body short_desc"></div>
+                    <div class="modal-footer">
+                        <button type="button" style="background: #5cbbeb; color: #ffffff" class="btn btn-secondary"
+                            data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<%- include('default_scripts.ejs') %>
+<script type="text/javascript">
+    $.ajax({
+        url: '/api/resource_type',
+        method: 'GET',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: function (data) {
+            $('.resource_type_option').html(
+                data.response ?
+                    `<option value="">Select Resource Type</option>` +
+                    data.response.map(s => `<option value="${s.id}">${s.resource_type_name.toLowerCase()}</option>`).join('') : []);
+            $(document).ready(function () {
+                $('#boot-multiselect-demo').multiselect({
+                    includeSelectAllOption: true,
+                    buttonWidth: 250,
+                    enableFiltering: true
+                });
+            });
+        }
+    });
+</script>
+<script>
+    const defaultBannerImg = 'img/default_banner.png';
+    $('.reset_banner_img').click(function (e) {
+        e.preventDefault();
+        $('#banner_img_base64').attr('src', defaultBannerImg);
+        $('#input_banner_img').val('');
+    });
+    document.getElementById("input_banner_img").addEventListener("change", readFile);
+    function readFile() {
+        if (this.files && this.files[0]) {
+            var FR = new FileReader();
+            FR.addEventListener("load", function (e) {
+                document.getElementById("banner_img_base64").src = e.target.result;
+            });
+            FR.readAsDataURL(this.files[0]);
+        }
+    }
+
+    $(document).ready(function () {
+        $('#resourceListTable').DataTable({
+            bLengthChange: false,
+            searching: false,
+            ordering: false,
+            processing: true,
+            serverSide: true,
+            stateSave: true,
+            language: {
+                processing: 'Loading...'
+            },
+            ajax: {
+                url: "/api/resourceList"
+            }
+        });
+    });
+
+    function getInfoSelectedResource(id) {
+        $.ajax({
+            url: `/api/getSelectedResource/${id}`,
+            success: function (res) {
+                $('.resource_id').val(res.response.id);
+                $('.resource_title').html(res.response.title);
+                $('.short_desc').html(res.response.short_desc);
+            }
+        })
+    }
+
+    function getSelectedResource(id) {
+        $('.editView').css('display', 'block');
+        $('.tableView').css('display', 'none');
+        $('#input_banner_img').val('');
+        $.ajax({
+            url: `/api/getSelectedResource/${id}`,
+            success: function (res) {
+                $('.resource_id').val(res.response.id);
+                $('.resource_title').val(res.response.title);
+                $('.resource_type_option').val(res.response.resource_type_id);
+                $('.short_desc').val(res.response.short_desc);
+                $('#banner_img_base64').attr('src', res.response.banner_img ? res.response.banner_img : defaultBannerImg);
+            }
+        })
+    }
+
+    $('.update_resource').click(function (e) {
+        e.preventDefault();
+        if (!$('.resource_title').val()) {
+            $('.resource_title').focus();
+            $('.resource_title').css('border-color', 'red');
+            return true;
+        } else if (!$('.resource_type_option').val()) {
+            $('.resource_title').css('border-color', '');
+            $('.resource_type_option').focus();
+            $('.resource_type_option').css('border-color', 'red');
+            return false;
+        } else if (!$('.short_desc').val()) {
+            $('.resource_type_option').css('border-color', '');
+            $('.short_desc').focus();
+            $('.short_desc').css('border-color', 'red');
+            return true;
+        } else {
+            $('.resource_title, .short_desc').css('border-color', '');
+            const data = {
+                title: $('.resource_title').val(),
+                short_desc: $('.short_desc').val(),
+                resource_type_id: +$('.resource_type_option').val(),
+                banner_img_base64: $('#banner_img_base64').attr('src') === defaultBannerImg ? '' : $('#banner_img_base64').attr('src')
+            }
+            console.log(data);
+            $.ajax({
+                url: `/api/resource/${parseInt($('.resource_id').val())}`,
+                method: 'PUT',
+                data: JSON.stringify(data),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                beforeSend: function () {
+                    $('.update_resource').css('pointer-events', 'none');
+                    $('.fa-refresh').css('display', '');
+                },
+                success: function (res) {
+                    $('.update_resource').css('pointer-events', '');
+                    $('.fa-refresh').css('display', 'none');
+                    $('.editView').css('display', 'none');
+                    $('.tableView').css('display', 'block');
+                    $('#resourceListTable').DataTable().ajax.reload(null, false);
+                }
+            })
+        }
+    })
+
+    $('.closeView').click(function () {
+        $('.editView').css('display', 'none');
+        $('.tableView').css('display', 'block');
+    })
+
+    function deleteSelectedResource(resourceId, resourceTitle) {
+        const data = confirm(`${resourceTitle} \n \n Are you sure want to delete?`);
+        if (data) {
+            $.ajax({
+                method: 'DELETE',
+                url: `/api/resource/${resourceId}`,
+                success: function () {
+                    $('#resourceListTable').DataTable().ajax.reload(null, false);
+                }
+            })
+        }
+    }
+</script>
+
+</html>

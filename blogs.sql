@@ -1,0 +1,1 @@
+CREATE TABLE blogs ( id serial PRIMARY KEY, title text, banner_img text, short_desc text, content text, industry_id integer references industry(id), created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);
